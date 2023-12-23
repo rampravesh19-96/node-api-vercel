@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
 app.get('/about', (req, res) => {
   res.send('This is my about route..... ')
 })
-app.get('/check', (req, res) => {
+app.post('/check', (req, res) => {
   res.status(200).json({id : 1, email:"abc@gmail.com",name : "sachin"})
 })
 
