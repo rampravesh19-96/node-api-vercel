@@ -3,6 +3,16 @@ const express = require('express')
 const app = express()
 const PORT = 4000
 
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb+srv://ramps:12345@cluster0.4rtasgf.mongodb.net/test')
+.then(() => {
+  console.log('Connected to MongoDB Atlas');
+})
+.catch((error) => {
+  console.error('Error connecting to MongoDB Atlas:', error.message);
+});
+
 
 
 app.listen(PORT, () => {
