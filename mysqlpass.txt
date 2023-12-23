@@ -1,0 +1,6 @@
+MySQL DB Name = if0_35664512_ramdb
+MySQL User Name = if0_35664512
+MySQL Password = AaaaA12345
+MySQL Host Name = sql107.infinityfree.com
+
+Lucky1996
