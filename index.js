@@ -10,7 +10,7 @@ app.use(routes);
 
 
 app.get("/",(req,res)=>{
-  res.send("Welcome to node api to vercel")
+  res.send("Welcome to node api.")
 })
 
 app.listen(process.env.PORT, () => {
