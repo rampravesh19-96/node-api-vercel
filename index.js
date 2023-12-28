@@ -19,8 +19,8 @@ const app = express();
 app.get("/",(req,res)=>{
   res.send("hello2")
 })
-app.listen(process.env.PORT, () => {
+app.listen(3005, () => {
   const ipAddress = getIPAddress();
-  console.log(`Server is running on http://${ipAddress}:${process.env.PORT}`);
+  console.log(`Server is running on http://localhost:3005`);
 });
 module.exports = app
