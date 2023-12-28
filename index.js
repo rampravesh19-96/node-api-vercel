@@ -1,7 +1,6 @@
 const express = require('express')
 require("dotenv").config();
-// const mongoose = require("mongoose")
-// require("./config/db")
+const mongoose = require("mongoose")
 
 const app = express()
 
@@ -13,4 +12,3 @@ app.get("/",(req,res)=>{
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on http://localhost:${process.env.PORT} `)
 })
-// module.exports = app
