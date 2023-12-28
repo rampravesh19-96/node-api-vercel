@@ -8,6 +8,11 @@ const app = express();
 app.use(bodyParser.json());
 app.use(routes);
 
+
+app.get("/",(req,res)=>{
+  res.send("Welcome to node api to vercel")
+})
+
 app.listen(process.env.PORT, () => {
   const ipAddress = getIPAddress();
   console.log(`Server is running on http://${ipAddress}:${process.env.PORT}`);
