@@ -8,7 +8,7 @@ const app = express();
 // app.use(bodyParser.json());
 // app.use(routes);
 app.get("/",(req,res)=>{
-  res.send("hello")
+  res.send("hello2")
 })
 app.listen(process.env.PORT, () => {
   const ipAddress = getIPAddress();
