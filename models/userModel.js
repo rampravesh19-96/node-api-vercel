@@ -16,6 +16,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  active: {
+    type: Number,
+    default: 0
+  },
+  resetToken: {
+    type : String,
+    default : null
+  },
+  resetTokenExpiry: {
+    type : Date,
+    default : null
+  },
 }, { timestamps: true }); // Adds createdAt and updatedAt timestamps
 
 const User = mongoose.model('User', userSchema);
