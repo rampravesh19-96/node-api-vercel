@@ -95,18 +95,23 @@ const getProductById = async (req, res) => {
 };
 const createProduct = async (req, res) => {
   try {
-    // Extract product details from the request body
-    const { title, description, price, category, imageURL, isFeatured } =
-      req.body;
+    // Check if an image file was provided
+    if (!req.file) {
+      return res.status(400).json({ error: 'Image file is required' });
+    }
+
+    // Get the Cloudinary URL of the uploaded image
+    const image = req.file.path;
 
     // Create a new product instance
     const newProduct = new Product({
-      title,
-      description,
-      price,
-      category,
-      imageURL,
-      isFeatured, // Add isFeatured field based on the request body
+      // Access form fields directly from req.body
+      title: req.body.title,
+      description: req.body.description,
+      price: req.body.price,  
+      category: req.body.category,
+      isFeatured: req.body.isFeatured,
+      image,
     });
 
     // Save the new product to the database
@@ -116,172 +121,217 @@ const createProduct = async (req, res) => {
     return res.status(201).json({ product: createdProduct });
   } catch (error) {
     // Handle any errors that occur during the process
-    return res.status(500).json({ error: "Internal server error" });
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 const createMultipleProducts = async (req, res) => {
   try {
-    const productsArray = req.body.products; // Assuming the array of products is sent in req.body.products
+    const productsArray = req.body.products;
 
-    // Check if the productsArray exists and is an array
     if (!Array.isArray(productsArray) || productsArray.length === 0) {
       return res
         .status(400)
         .json({ message: "Invalid or empty products array" });
     }
 
-    // Use insertMany() to save all products at once
-    const createdProducts = await Product.insertMany(productsArray);
+    const productsWithImages = [];
+
+    for (const product of productsArray) {
+      const imageFile = req.files && req.files.image;
+
+      // You may want to add additional validation for the image file here
+
+      let cloudinaryResponse;
+
+      if (imageFile) {
+        // Upload the image to Cloudinary
+        cloudinaryResponse = await cloudinary.uploader.upload(imageFile.path, {
+          folder: "", // Optional, specify the folder in Cloudinary
+          allowed_formats: ["jpg", "jpeg", "png"],
+          // You can add more configuration options as needed
+        });
+      }
+
+      // Include the Cloudinary response URL in the product data
+      const productWithImage = {
+        ...product,
+        image: cloudinaryResponse ? cloudinaryResponse.secure_url : null,
+      };
+
+      productsWithImages.push(productWithImage);
+    }
+
+    const createdProducts = await Product.insertMany(productsWithImages);
 
     // Return the array of created products as a JSON response
     return res.status(201).json({ products: createdProducts });
   } catch (error) {
-    // Handle any errors that occur during the process
+    console.error(error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
 
 const updateProduct = async (req, res) => {
-  const productId = req.params.productId;
-
   try {
-    // Find the product by ID in the database
-    let product = await Product.findById(productId);
+    // Find the existing product by ID
+    const productId = req.params.productId;
+    const existingProduct = await Product.findById(productId);
 
     // Check if the product with the given ID exists
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+    if (!existingProduct) {
+      return res.status(404).json({ error: 'Product not found' });
     }
 
-    // Update product details with incoming data from the request body
-    const { title, description, price, category, imageURL, isFeatured } =
-      req.body;
+    // Check if a new image file was provided
+    if (req.file) {
+      // Get the Cloudinary URL of the uploaded image
+      const updatedImage = req.file.path;
+      existingProduct.image = updatedImage;
+    }
 
-    // Assign new values if they exist, otherwise keep the existing values
-    product.title = title || product.title;
-    product.description = description || product.description;
-    product.price = price || product.price;
-    product.category = category || product.category;
-    product.imageURL = imageURL || product.imageURL;
-    product.isFeatured = isFeatured || product.isFeatured; // Update isFeatured field
+    // Update the product fields based on the request body
+    existingProduct.title = req.body.title || existingProduct.title;
+    existingProduct.description = req.body.description || existingProduct.description;
+    existingProduct.price = req.body.price || existingProduct.price;
+    existingProduct.category = req.body.category || existingProduct.category;
+    existingProduct.isFeatured = req.body.isFeatured || existingProduct.isFeatured;
 
-    // Save the updated product details to the database
-    const updatedProduct = await product.save();
+    // Save the updated product to the database
+    const updatedProduct = await existingProduct.save();
 
     // Return the updated product as a JSON response
     return res.status(200).json({ product: updatedProduct });
   } catch (error) {
     // Handle any errors that occur during the process
-    return res.status(500).json({ error: "Internal server error" });
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
-const deleteProduct = async (req, res) => {
-  const productId = req.params.productId;
 
+const deleteProduct = async (req, res) => {
   try {
-    // Find the product by ID in the database
-    const product = await Product.findById(productId);
+    const productId = req.params.productId;
+
+    // Find the product by ID
+    const productToDelete = await Product.findById(productId);
 
     // Check if the product with the given ID exists
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+    if (!productToDelete) {
+      return res.status(404).json({ error: 'Product not found' });
     }
 
-    // Remove the product from the database
-    await product.remove();
+    // Check if the product has an associated image
+    if (productToDelete.image) {
+      // Use Cloudinary API to delete the product's image
+      await deleteCloudinaryImg(productToDelete.image);
+    }
 
-    // Return a success message as a JSON response
-    return res.status(200).json({ message: "Product deleted successfully" });
+    // Delete the product from the database
+    await Product.findByIdAndDelete(productId);
+
+    return res.status(200).json({ message: 'Product deleted successfully' });
   } catch (error) {
     // Handle any errors that occur during the process
-    return res.status(500).json({ error: "Internal server error" });
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 const deleteMultipleProducts = async (req, res) => {
   try {
-    const productIdsArray = req.body.productIds; // Assuming the array of product IDs is sent in req.body.productIds
+    const productIdsToDelete = req.body.productIds; // Assuming the array of product IDs is sent in req.body.productIds
 
-    // Check if the productIdsArray exists and is an array
-    if (!Array.isArray(productIdsArray) || productIdsArray.length === 0) {
+    if (!Array.isArray(productIdsToDelete) || productIdsToDelete.length === 0) {
       return res
         .status(400)
-        .json({ message: "Invalid or empty product IDs array" });
+        .json({ message: "Invalid or empty productIds array" });
     }
 
-    // Delete multiple products based on their IDs
-    const deletionResult = await Product.deleteMany({
-      _id: { $in: productIdsArray },
-    });
+    // Fetch the products to get their image URLs
+    const productsToDelete = await Product.find({ _id: { $in: productIdsToDelete } });
 
-    // Check the deletion result for number of deleted products
-    if (deletionResult.deletedCount === 0) {
-      return res
-        .status(404)
-        .json({ message: "No products found for deletion" });
+    // Extract image URLs from products
+    const imageUrlsToDelete = productsToDelete.map(product => product.image);
+
+    // Delete images from Cloudinary
+    for (const imageUrl of imageUrlsToDelete) {
+      await deleteCloudinaryImg(imageUrl);
     }
 
-    // Return a success message or deletion result as needed
-    return res.status(200).json({
-      message: `${deletionResult.deletedCount} products deleted successfully`,
-    });
+    // Delete products from the database
+    await Product.deleteMany({ _id: { $in: productIdsToDelete } });
+
+    return res.status(200).json({ message: "Products deleted successfully" });
   } catch (error) {
-    // Handle any errors that occur during the process
+    console.error(error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
 const searchProducts = async (req, res) => {
   try {
-    const searchQuery = req.query.q; // Search query
-    const page = parseInt(req.query.page) || 1; // Current page number (default: 1)
-    const limit = parseInt(req.query.limit) || 10; // Number of results per page (default: 10)
-    const sortBy = req.query.sortBy || "title"; // Sorting field (default: title)
-    const sortOrder = req.query.sortOrder || "asc"; // Sorting order (default: ascending)
+    const searchQuery = req.query.q || '';
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const sortBy = req.query.sortBy || "title";
+    const sortOrder = req.query.sortOrder || "asc";
+    const isFeatured = req.query.featured
+    const isLatest = req.query.latest === "true" || false;
 
-    let filter = {}; // Add additional filters as needed based on your schema
+    let filter = {};
 
-    // Check if the search query exists
-    if (!searchQuery) {
-      return res.status(400).json({ message: "Invalid search query" });
+    // Additional filters based on options (featured and latest)
+    if (isFeatured && (isFeatured==="true" || isFeatured==="false")) {
+      filter.isFeatured = isFeatured;
     }
 
-    // Search for products that match the search query in title or description
     const query = {
       $or: [
-        { title: { $regex: searchQuery, $options: "i" } }, // Case-insensitive search in title
-        { description: { $regex: searchQuery, $options: "i" } }, // Case-insensitive search in description
+        { title: { $regex: searchQuery, $options: "i" } },
+        { description: { $regex: searchQuery, $options: "i" } },
       ],
-      ...filter, // Add additional filters here
+      ...(Object.keys(filter).length > 0 ? filter : {}), // Only include filter if it's not empty
     };
 
-    const totalCount = await Product.countDocuments(query); // Get total count for pagination
+    const totalCount = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalCount / limit);
 
-    // Apply pagination and sorting
-    const foundProducts = await Product.find(query)
-      .sort({ [sortBy]: sortOrder === "desc" ? -1 : 1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
+    let foundProducts;
 
-    // Check if no products match the search query
+    if (isLatest) {
+      // If isLatest=true, apply sorting by createdAt in descending order
+      foundProducts = await Product.find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit);
+    } else {
+      // If isLatest=false or not provided, apply sorting based on sortBy and sortOrder
+      foundProducts = await Product.find(query)
+        .sort({ [sortBy]: sortOrder === "desc" ? -1 : 1 })
+        .skip((page - 1) * limit)
+        .limit(limit);
+    }
+
     if (!foundProducts || foundProducts.length === 0) {
       return res
         .status(404)
         .json({ message: "No products found for the search query" });
     }
 
-    // Return the found products along with pagination details as a JSON response
     return res.status(200).json({
       products: foundProducts,
       totalPages,
       currentPage: page,
       totalCount,
-      // Add more details as needed for pagination and metadata
     });
   } catch (error) {
-    // Handle any errors that occur during the process
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 module.exports = {
   // Fetching products

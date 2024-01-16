@@ -29,17 +29,26 @@ const getReviewsByProduct = async (req, res) => {
   try {
     const productId = req.params.productId;
 
-    const reviews = await Review.find({
-      product: productId,
-    }).populate("user");
+    // Find all reviews for the product and populate the 'user' field with only '_id'
+    const reviews = await Review.find({ product: productId })
+      .populate({
+        path: 'user',
+        select: '_id', // Only include the _id field of the user
+      });
+
+    // Calculate the average rating
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
 
     return res.status(200).json({
       reviews,
+      averageRating,
+      numberOfReviews: reviews.length,
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      error: "Internal server error",
+      error: 'Internal server error',
     });
   }
 };

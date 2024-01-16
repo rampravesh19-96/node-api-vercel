@@ -1,23 +1,16 @@
 const express = require("express");
 const router = express.Router();
+const {upload} = require("../middleware/multer")
 const {
-  register,
-  login,
-  saveProfile,
+  updateProfile,
   getProfile,
-  activateUser,
-  forgotPassword,
+  forgotPassword, 
   resetPassword,
 } = require("../controllers/userController");
-const { validateRegistration } = require("../utils/validation");
-const loginLimiter = require("../middleware/loginLimiter");
 const varifyToken = require("../middleware/verifyToken");
 
-router.post("/register", validateRegistration, register);
-router.post("/login", login);
-router.post("/profile", varifyToken, saveProfile);
+router.patch("/profile", varifyToken,upload.single('profilePicture'), updateProfile);
 router.get("/profile", varifyToken, getProfile);
-router.get("/activate-user/:userId", activateUser);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 

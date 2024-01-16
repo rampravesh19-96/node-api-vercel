@@ -11,12 +11,12 @@ const {
 router.get('/cart', getCart);
 
 // POST add product to cart
-router.post('/cart/add', addToCart);
+router.post('/cart', addToCart);
 
 // DELETE remove product from cart
-router.delete('/cart/remove', removeFromCart);
+router.delete('/cart', removeFromCart);
 
 // DELETE clear user's cart
-router.delete('/cart/clear', clearCart);
+router.delete('/carts', clearCart);
 
 module.exports = router;

@@ -1,4 +1,28 @@
-{
-    "url" : "http://192.168.150.191:3005",
-    "frontendUrl" : "http://192.168.150.191:3000"
-}
+{   
+    "url" : "http://localhost:5000",
+    "frontend_url" : "http://localhost:3000",
+    "port": 5000,
+    "mongo_uri": "mongodb+srv://ramps:12345@cluster0.4rtasgf.mongodb.net/custom",
+    "salt": 10,
+    "jwt_secret": "secrethgji",
+    "token_expiry": "1000h",
+    "from_email_password": "pokuwiasmhteqjju",
+    "from_email": "rampraveshsingh1996@gmail.com",
+    "stripe_secret_key": "sk_test_51N6XujSHk2fNibRL1AGICLHO5ov2cJXQOuaLaYWadTAN1YspwN3hq64NNZj2GyUYZSf1Gg4iEIrC4mt2qNYcyJmw00IkBt8Jye",
+    "cloudinary_name": "dwnt3jxl9",
+    "cloudinary_key": 323646153392958,
+    "cloudinary_secret": "Y4vyOzch14dbn5QGgXsIxqD2kyk",
+    "google_client_id": "981005809752-0jrhtn407ijq9brem01ev6n3ubr5kidk.apps.googleusercontent.com",
+    "google_client_secret": "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",
+    "google_callback_url": "/auth/google/callback",
+    "github_client_id": "bce403fbead62731960a",
+    "github_client_secret": "5c48194d9cc8b4017db2973a6eacf78a8613dcd7",
+    "github_callback_url": "/auth/github/callback",
+    "facebook_app_id": "1100340404746909",
+    "facebook_app_secret": "c33dee6d7579830d12756df6a78d3163",
+    "facebook_callback_url": "/auth/facebook/callback",
+    "project_id": "norse-acrobat-411110",
+    "pmt_success_route":"success",
+    "pmt_cancel_route":"cancel"
+  }
+  

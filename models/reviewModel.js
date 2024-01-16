@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 const reviewSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'User', // Make sure 'User' matches the model name
     required: true,
   },
   product: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
+    ref: 'Product', // Make sure 'Product' matches the model name
     required: true,
   },
   rating: {
@@ -19,8 +19,8 @@ const reviewSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  // Add more fields as needed: date, helpful count, etc.
-}, { timestamps: true });
+});
 
 const Review = mongoose.model('Review', reviewSchema);
+
 module.exports = Review;

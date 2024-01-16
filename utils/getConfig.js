@@ -5,7 +5,6 @@ async function getConfig() {
   try {
     let filePath = path.join(__dirname, '../config.json');
 
-    // Check if running in production (like on Vercel)
     if (process.env.NODE_ENV === 'production') {
       filePath = path.join(process.cwd(), 'config.json');
     }

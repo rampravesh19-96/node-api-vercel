@@ -6,8 +6,11 @@ const paymentRoute = require("./paymentRoute");
 const reviewRoute = require("./reviewRoute");
 const commentRoute = require("./commentRoute");
 const chatRoute = require("./chatRoute");
+const authRoute = require("./authRoute");
+
 
 module.exports = {
+  authRoute,
   userRoute,
   productRoute,
   cartRoute,
@@ -15,5 +18,5 @@ module.exports = {
   paymentRoute,
   reviewRoute,
   commentRoute,
-  chatRoute
+  chatRoute,
 };

@@ -24,7 +24,11 @@ const getCommentsByReview = async (req, res) => {
   try {
     const reviewId = req.params.reviewId;
 
-    const comments = await Comment.find({ review: reviewId }).populate('user');
+    const comments = await Comment.find({ review: reviewId })
+      .populate({
+        path: 'user',
+        select: '_id', // Include only the _id field of the user
+      });
 
     return res.status(200).json({ comments });
   } catch (error) {
@@ -32,6 +36,7 @@ const getCommentsByReview = async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 // This function retrieves replies for a specific comment (parentComment)
 const getRepliesForComment = async (req, res) => {

@@ -1,18 +1,18 @@
 const nodemailer = require("nodemailer");
-require("dotenv").config();
-console.log(process.env.FROM_EMAIL_PASSWORD);
+
+const config = require("../config.json")
 const transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {
-    user: process.env.FROM_EMAIL,
-    pass: process.env.FROM_EMAIL_PASSWORD,
+    user: config.from_email,
+    pass: config.from_email_password,
   },
 });
 
 const sendEmail = async (to, subject, text) => {
   try {
     const mailOptions = {
-      from: process.env.FROM_EMAIL,
+      from: config.from_email,
       to,
       subject,
       text,

@@ -12,6 +12,8 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
+    "cloudinary": "^1.41.2",
+    "cookie-session": "^2.0.0",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^16.3.1",
@@ -21,9 +23,16 @@
     "install": "^0.13.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",
+    "multer": "^1.4.5-lts.1",
+    "multer-storage-cloudinary": "^4.0.0",
     "mysql": "^2.18.1",
     "nodemailer": "^6.9.7",
     "npm": "^10.2.5",
+    "passport": "^0.5.3",
+    "passport-facebook": "^3.0.0",
+    "passport-github2": "^0.1.12",
+    "passport-google-oauth20": "^2.0.0",
+    "raw-body": "^2.5.2",
     "request-ip": "^3.3.0",
     "stripe": "^14.11.0"
   }
